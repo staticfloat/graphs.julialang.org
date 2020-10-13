@@ -1,0 +1,35 @@
+version: '3'
+services:
+  telegraf:
+    image: telegraf
+    restart: unless-stopped
+    volumes:
+      # Mount /proc in so that we can inspect the host's statistics
+      - /proc:/proc2
+      # Mount the docker socket in so that we can get docker statistics
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Finally, mount in our config. :)
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    environment:
+      - HOSTNAME=${HOSTNAME}
+      - PROJECT=${PROJECT:-JuliaLang}
+      - FQDN=${FQDN}
+      - HOST_PROC=/proc2
+    # Need this to get host networking statistics
+    network_mode: "host"
+    # Add some needed permissions boosts
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    # Enable watchtower for this container, at this scope
+    labels:
+      com.centurylinklabs.watchtower.scope: "julia_telegraf"
+
+  # watchtower to update
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --cleanup --scope julia_telegraf
+
