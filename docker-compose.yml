@@ -17,21 +17,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.scope: "julia_grafana"
 
-# chronograf:
-#   image: chronograf:latest
-#   ports:
-#       - '8008:8888'
-#   volumes:
-#     - chronograf-storage:/var/lib/chronograf
-#   depends_on:
-#     - influxdb
-#   environment:
-#     - INFLUXDB_URL=http://influxdb:8086
-#     - INFLUXDB_USERNAME=${INFLUXDB_USERNAME}
-#     - INFLUXDB_PASSWORD=${INFLUXDB_PASSWORD}
-#   restart: unless-stopped
-
-  # grafana to displat them beatifully
+  # grafana to display them beautifully
   grafana:
     image: grafana/grafana:latest
     expose:
@@ -45,9 +31,8 @@ services:
       - GF_SERVER_ROOT_URL=https://${FQDN}
       - GF_SERVER_DOMAIN=${FQDN}
       - GF_SERVER_PROTOCOL=http
+      # When auto-logging in via GitHub, this is the only way to get initial admin
       - GF_SECURITY_ADMIN_USER=staticfloat
-     #- GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
-     #- GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_AUTH_GITHUB_ENABLED=true
       - GF_AUTH_GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GF_AUTH_GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
