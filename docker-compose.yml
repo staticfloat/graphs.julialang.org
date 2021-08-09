@@ -2,7 +2,7 @@ version: '3'
 services:
   # influxdb to accept incoming stats measurements
   influxdb:
-    image: influxdb:latest
+    image: influxdb:1.8
     expose:
       - 8086
     volumes:
@@ -23,7 +23,7 @@ services:
     expose:
       - 3000
     volumes:
-      - grafana-storage:/var/lib/grafana
+      - ./grafana-storage:/var/lib/grafana
       - ./grafana-provisioning/:/etc/grafana/provisioning
     depends_on:
       - influxdb
@@ -45,19 +45,18 @@ services:
 
   # nginx TLS termination/frontend
   frontend:
-    image: staticfloat/nginx-certbot
+    image: jonasal/nginx-certbot
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: staticfloat@gmail.com
-      FQDN: ${FQDN}
-      ENVSUBST_VARS: FQDN
+      FQDN: grafana.julia.csail.mit.edu
     ports:
       - 80:80/tcp
       - 443:443/tcp
     depends_on:
       - grafana
     volumes:
-      - ./${FQDN}.conf:/etc/nginx/user.conf.d/${FQDN}.conf
+      - ./grafana.julia.csail.mit.edu.conf:/etc/nginx/user_conf.d/grafana.julia.csail.mit.edu.conf
       # Keep SSL certificates permanently
       - letsencrypt:/etc/letsencrypt
     labels:
